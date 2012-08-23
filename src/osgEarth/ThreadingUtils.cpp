@@ -21,8 +21,9 @@
 #ifdef _WIN32
     extern "C" unsigned long __stdcall GetCurrentThreadId();
 #else
-#   include <unistd.h>
-#   include <sys/syscall.h>
+#ifdef ANDROID
+    #include <unistd.h>
+#endif
 #endif
 
 using namespace osgEarth::Threading;
@@ -37,6 +38,10 @@ unsigned osgEarth::Threading::getCurrentThreadId()
 #ifdef _WIN32
         return (unsigned)::GetCurrentThreadId();
 #else
+#ifdef ANDROID
+	return (unsigned)gettid();
+#else
         return (unsigned)::syscall(SYS_gettid);
+#endif
 #endif
 }
