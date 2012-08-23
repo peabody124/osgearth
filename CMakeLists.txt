@@ -257,12 +257,15 @@ ENDIF(WIN32 AND NOT ANDROID)
 #luigi#ENDIF(UNIX)
 ########################################################################################################
 
-# Common to all platforms:
-SET(OSG_DIR "" CACHE PATH "set to base osg install path")
-
 SET(CMAKE_DEBUG_POSTFIX  "d" CACHE STRING "add a postfix, usually d on windows")
 
-FIND_PACKAGE(OSG)
+IF(ANDROID)
+    FIND_PACKAGE(OSG)
+ELSE()
+    # Common to all platforms:
+    SET(OSG_DIR "" CACHE PATH "set to base osg install path")
+    FIND_PACKAGE(OSG)
+ENDIF()
 
 
 #FIND_PACKAGE(GDAL)
