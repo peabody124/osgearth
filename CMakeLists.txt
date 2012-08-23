@@ -47,6 +47,76 @@ SET(OpenThreads_SOURCE_DIR ${OSGEARTH_SOURCE_DIR})
 # Maybe this can be used override existing behavior if needed?
 SET(CMAKE_MODULE_PATH "${OSGEARTH_SOURCE_DIR}/CMakeModules;${CMAKE_MODULE_PATH}")
 
+## Option to enable Android build using AndroidNDK
+OPTION(OSG_BUILD_PLATFORM_ANDROID OFF)
+IF(OSG_BUILD_PLATFORM_ANDROID)
+
+    CMAKE_MINIMUM_REQUIRED(VERSION 2.8.0 FATAL_ERROR)
+
+    INCLUDE(OsgAndroidMacroUtils)
+    SET(ANDROID TRUE)
+    IF(NOT ANDROID_PLATFORM)
+        MESSAGE("Warning Android Platform version NOT defined, Default selected version: 5")
+        SET(ANDROID_PLATFORM 5)
+    ENDIF()
+    IF(NOT ANDROID_ABI)
+        MESSAGE("Warning Android ABI version NOT defined, Default selection: armeabi armeabi-v7a")
+        SET(ANDROID_ABI "armeabi armeabi-v7a")
+    ENDIF()
+    IF(NOT ANDROID_STL)
+        MESSAGE("Warning Android STL NOT defined, Default selection: gnustl_static")
+        SET(ANDROID_STL "gnustl_static")
+    ENDIF()
+    IF(ANDROID_DEBUG)
+        MESSAGE("Warning Android Build is in debug mode")
+        SET(ANDROID_RELEASE_OPTIM "debug")
+    ELSE()
+        MESSAGE("Warning Android Build is in release mode")
+        SET(ANDROID_RELEASE_OPTIM "release")
+    ENDIF()
+    IF(ANDROID_NEON)
+        MESSAGE("Warning Android NEON optimizations enabled, this will not be available on all armeabi-v7a devices ie. Tegra2")
+        SET(ANDROID_OPTIM_NEON true)
+    ELSE()
+        SET(ANDROID_OPTIM_NEON false)
+    ENDIF()
+    IF(ANDROID_ARM32)
+        MESSAGE("Warning ARM 32bit instruction set will be used")
+        SET(ANDROID_OPTIM_ARM32 true)
+    ELSE()
+        SET(ANDROID_OPTIM_ARM32 false)
+    ENDIF()
+
+    FIND_PACKAGE(AndroidNDK REQUIRED)
+
+    SET(OSG_ANDROID_TEMPLATES "${CMAKE_SOURCE_DIR}/PlatformSpecifics/Android")
+
+    SET(J  "4" CACHE STRING "how many processes for make -j <J>")
+
+    ADD_CUSTOM_COMMAND(
+        OUTPUT    Android-OpenSceneGraph
+        DEPENDS   ${CMAKE_BINARY_DIR}/Android.mk
+        COMMAND   "${ANDROID_NDK}/ndk-build"
+        ARGS      --directory=${CMAKE_BINARY_DIR} NDK_APPLICATION_MK=Application.mk -j${J} NDK_LOG=1
+    )
+
+    ADD_CUSTOM_TARGET(ndk ALL echo
+          DEPENDS Android-OpenSceneGraph
+    )
+    install(DIRECTORY include/ DESTINATION include/
+        PATTERN ".svn" EXCLUDE
+    )
+    install(DIRECTORY ${CMAKE_BINARY_DIR}/include/ DESTINATION include/
+    )
+    install(DIRECTORY ${CMAKE_BINARY_DIR}/obj/ DESTINATION obj/
+        PATTERN ".svn" EXCLUDE
+        PATTERN "objs" EXCLUDE
+    )
+
+    ADD_DEFINITIONS(-DANDROID)
+
+ENDIF()
+
 # IPHONE_PORT@tom
 # Trying to get CMake to generate an XCode IPhone project, current efforts are to get iphoneos sdk 3.1 working
 # Added option which needs manually setting to select the IPhone SDK for building. We can only have one of the below 
@@ -93,7 +163,9 @@ ENDIF()
 # cases. With IRIX, we're going to hope explicit linking to the underlying
 # library is not necessary. We currently don't case for pthreads on Windows
 # which might be an issue on things like Cygwin. This may need to be fixed.
-FIND_PACKAGE(Threads)
+IF(NOT ANDROID)
+	FIND_PACKAGE(Threads)
+ENDIF()
 IF(CMAKE_SYSTEM MATCHES IRIX)
     # Erase CMAKE_THREAD_LIBS_INIT and hope it works
     SET(CMAKE_THREAD_LIBS_INIT "" CACHE INTERNAL "")
@@ -294,7 +366,7 @@ ADD_SUBDIRECTORY(src)
 
 # Set defaults for Universal Binaries. We want 32-bit Intel/PPC on 10.4
 # and 32/64-bit Intel/PPC on >= 10.5. Anything <= 10.3 doesn't support.
-IF(APPLE)
+IF(APPLE AND NOT ANDROID)
 
         #Here we check if the user specified IPhone SDK
     IF(OSG_BUILD_PLATFORM_IPHONE OR OSG_BUILD_PLATFORM_IPHONE_SIMULATOR)
@@ -356,7 +428,7 @@ IF(APPLE)
 
     ENDIF()
 
-ENDIF(APPLE)
+ENDIF(APPLE AND NOT ANDROID)
 
 
 # This needs to be run very last so other parts of the scripts can take
