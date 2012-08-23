@@ -147,40 +147,43 @@ ENDMACRO(LINK_CORELIB_DEFAULT CORELIB_NAME)
 ##########################################################################################################
 
 MACRO(SETUP_LINK_LIBRARIES)
-    ######################################################################
-    #
-    # This set up the libraries to link to, it assumes there are two variable: one common for a group of examples or plagins
-    # kept in the variable TARGET_COMMON_LIBRARIES and an example or plugin specific kept in TARGET_ADDED_LIBRARIES
-    # they are combined in a single list checked for unicity
-    # the suffix ${CMAKE_DEBUG_POSTFIX} is used for differentiating optimized and debug
-    #
-    # a second variable TARGET_EXTERNAL_LIBRARIES hold the list of  libraries not differentiated between debug and optimized
-    ##################################################################################
-    SET(TARGET_LIBRARIES ${TARGET_COMMON_LIBRARIES})
+    IF(ANDROID)
+        SETUP_ANDROID_LIBRARY(${TARGET_TARGETNAME})
+    ELSE()
+        ######################################################################
+        #
+        # This set up the libraries to link to, it assumes there are two variable: one common for a group of examples or plagins
+        # kept in the variable TARGET_COMMON_LIBRARIES and an example or plugin specific kept in TARGET_ADDED_LIBRARIES
+        # they are combined in a single list checked for unicity
+        # the suffix ${CMAKE_DEBUG_POSTFIX} is used for differentiating optimized and debug
+        #
+        # a second variable TARGET_EXTERNAL_LIBRARIES hold the list of  libraries not differentiated between debug and optimized
+        ##################################################################################
+        SET(TARGET_LIBRARIES ${TARGET_COMMON_LIBRARIES})
 
-    FOREACH(LINKLIB ${TARGET_ADDED_LIBRARIES})
-      SET(TO_INSERT TRUE)
-      FOREACH (value ${TARGET_COMMON_LIBRARIES})
-            IF (${value} STREQUAL ${LINKLIB})
-                  SET(TO_INSERT FALSE)
-            ENDIF (${value} STREQUAL ${LINKLIB})
-        ENDFOREACH (value ${TARGET_COMMON_LIBRARIES})
-      IF(TO_INSERT)
-          LIST(APPEND TARGET_LIBRARIES ${LINKLIB})
-      ENDIF(TO_INSERT)
-    ENDFOREACH(LINKLIB)
+        FOREACH(LINKLIB ${TARGET_ADDED_LIBRARIES})
+            SET(TO_INSERT TRUE)
+            FOREACH (value ${TARGET_COMMON_LIBRARIES})
+                IF (${value} STREQUAL ${LINKLIB})
+                      SET(TO_INSERT FALSE)
+                ENDIF (${value} STREQUAL ${LINKLIB})
+            ENDFOREACH (value ${TARGET_COMMON_LIBRARIES})
+            IF(TO_INSERT)
+                LIST(APPEND TARGET_LIBRARIES ${LINKLIB})
+            ENDIF(TO_INSERT)
+        ENDFOREACH(LINKLIB)
 
-#    FOREACH(LINKLIB ${TARGET_LIBRARIES})
-#            TARGET_LINK_LIBRARIES(${TARGET_TARGETNAME} optimized ${LINKLIB} debug "${LINKLIB}${CMAKE_DEBUG_POSTFIX}")
-#    ENDFOREACH(LINKLIB)
-    LINK_INTERNAL(${TARGET_TARGETNAME} ${TARGET_LIBRARIES})
+        LINK_INTERNAL(${TARGET_TARGETNAME} ${TARGET_LIBRARIES})
 
-    FOREACH(LINKLIB ${TARGET_EXTERNAL_LIBRARIES})
+        FOREACH(LINKLIB ${TARGET_EXTERNAL_LIBRARIES})
             TARGET_LINK_LIBRARIES(${TARGET_TARGETNAME} ${LINKLIB})
-    ENDFOREACH(LINKLIB)
+        ENDFOREACH(LINKLIB)
+            
         IF(TARGET_LIBRARIES_VARS)
             LINK_WITH_VARIABLES(${TARGET_TARGETNAME} ${TARGET_LIBRARIES_VARS})
         ENDIF(TARGET_LIBRARIES_VARS)
+    ENDIF()
+
 ENDMACRO(SETUP_LINK_LIBRARIES)
 
 ############################################################################################
