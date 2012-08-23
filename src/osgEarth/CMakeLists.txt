@@ -236,3 +236,88 @@ IF (TINYXML_FOUND)
 ENDIF (TINYXML_FOUND)
 
 INCLUDE(ModuleInstall OPTIONAL)
+
+
+
+
+
+SET(TARGET_SRC
+    Bounds.cpp
+    Cache.cpp
+    CachePolicy.cpp
+    CacheSeed.cpp
+    Capabilities.cpp
+    ColorFilter.cpp
+    CompositeTileSource.cpp
+    Config.cpp
+    Cube.cpp
+    CullingUtils.cpp
+    DepthOffset.cpp
+    Draggers.cpp
+    DPLineSegmentIntersector.cpp
+    DrapeableNode.cpp
+    DrawInstanced.cpp
+    ECEF.cpp
+    ElevationLayer.cpp
+    ElevationLOD.cpp
+    ElevationQuery.cpp
+    FileUtils.cpp
+    GeoData.cpp
+    Geoid.cpp
+    GeoMath.cpp
+    HeightFieldUtils.cpp
+    HTTPClient.cpp
+    ImageLayer.cpp
+    ImageMosaic.cpp
+    ImageToHeightFieldConverter.cpp
+    ImageUtils.cpp
+    IOTypes.cpp
+    JsonUtils.cpp
+    Layer.cpp
+    Locators.cpp
+    LocalTangentPlane.cpp
+    Map.cpp
+    MapNode.cpp
+    MapNodeOptions.cpp
+    MapOptions.cpp
+    MaskLayer.cpp
+    MaskNode.cpp
+    MaskSource.cpp
+    MemCache.cpp
+    MimeTypes.cpp
+    ModelLayer.cpp
+    ModelSource.cpp
+    NodeUtils.cpp
+    Notify.cpp
+    OverlayDecorator.cpp
+    Pickers.cpp
+    Profile.cpp
+    Progress.cpp
+    Random.cpp
+    Registry.cpp
+    ShaderComposition.cpp
+    ShaderUtils.cpp
+    SparseTexture2DArray.cpp
+    SpatialReference.cpp
+    StateSetCache.cpp
+    StringUtils.cpp
+    TaskService.cpp
+    Terrain.cpp
+    TerrainLayer.cpp
+    TerrainOptions.cpp
+    TerrainEngineNode.cpp
+    TextureCompositor.cpp
+    TextureCompositorMulti.cpp
+    TextureCompositorTexArray.cpp
+    TileKey.cpp
+    TileSource.cpp
+    ThreadingUtils.cpp
+    Units.cpp
+    URI.cpp
+    Utils.cpp
+    Version.cpp
+    VerticalDatum.cpp
+    Viewpoint.cpp
+    XmlUtils.cpp
+)
+SETUP_ANDROID_LIBRARY(${LIB_NAME})
