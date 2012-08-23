@@ -1,3 +1,7 @@
+IF(ANDROID)
+    SET(MODULE_USER_STATIC_OR_DYNAMIC ${OPENSCENEGRAPH_USER_DEFINED_DYNAMIC_OR_STATIC})
+ENDIF(ANDROID)
+
 #the old construct SUBDIRS( was substituded by ADD_SUBDIRECTORY that is to be preferred according on CMake docs.
 FOREACH( lib
          osgEarth
@@ -24,4 +28,6 @@ IF(MSVC80)
   OPTION(OSGEARTH_MSVC_GENERATE_PLUGINS_AND_WRAPPERS_MANIFESTS "Generate or not manifests files under VS8 for dynamically loaded dlls" ON)
 ENDIF(MSVC80)
 
-
+IF(ANDROID)
+    configure_file("${OSG_ANDROID_TEMPLATES}/Android.mk.src.in" "${CMAKE_CURRENT_BINARY_DIR}/Android.mk")
+ENDIF()

@@ -180,13 +180,15 @@ FIND_PACKAGE(Sqlite3)
 FIND_PACKAGE(ZLIB)
 FIND_PACKAGE(V8)
 
+IF(NOT ANDROID)
 FIND_PACKAGE(Qt4 4.6)
-IF (QT4_FOUND)
-    INCLUDE(${QT_USE_FILE})
-    SET(QT_ALL_LIBRARIES ${QT_LIBRARIES} ${QT_QTCORE_LIBRARY} ${QT_QTWEBKIT_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTXML_LIBRARY} ${QT_QTOPENGL_LIBRARY})
-ENDIF (QT4_FOUND)
+    IF (QT4_FOUND)
+        INCLUDE(${QT_USE_FILE})
+        SET(QT_ALL_LIBRARIES ${QT_LIBRARIES} ${QT_QTCORE_LIBRARY} ${QT_QTWEBKIT_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTXML_LIBRARY} ${QT_QTOPENGL_LIBRARY})
+    ENDIF (QT4_FOUND)
 
-OPTION(OSGEARTH_USE_QT "Enable to use Qt (build Qt-dependent libraries, plugins and examples)" ON)
+    OPTION(OSGEARTH_USE_QT "Enable to use Qt (build Qt-dependent libraries, plugins and examples)" ON)
+ENDIF()
 
 SET (WITH_EXTERNAL_TINYXML FALSE CACHE BOOL "Use bundled or system wide version of TinyXML")
 IF (WITH_EXTERNAL_TINYXML)
@@ -197,13 +199,13 @@ IF (ZLIB_FOUND)
     FIND_PACKAGE(MiniZip)
 ENDIF (ZLIB_FOUND)
 
-IF(UNIX)
+IF(UNIX AND NOT ANDROID)
     # Not sure what this will do on Cygwin and Msys
     # Also, remember OS X X11 is a user installed option so it may not exist.
     FIND_PACKAGE(X11)
     # Some Unicies need explicit linkage to the Math library or the build fails.
     FIND_LIBRARY(MATH_LIBRARY m)
-ENDIF(UNIX)
+ENDIF(UNIX AND NOT ANDROID)
 
 # Make the headers visible to everything
 INCLUDE_DIRECTORIES(
@@ -216,7 +218,7 @@ INCLUDE_DIRECTORIES(
 #ADD_DEFINITIONS(-D)
 # Platform specific definitions
 
-IF(WIN32)
+IF(WIN32 AND NOT ANDROID)
   IF(MSVC)
         # This option is to enable the /MP switch for Visual Studio 2005 and above compilers
         OPTION(WIN32_USE_MP "Set to ON to build osgEarth with the /MP option (Visual Studio 2005 and above)." OFF)
@@ -234,7 +236,7 @@ IF(WIN32)
         ADD_DEFINITIONS(-D_SCL_SECURE_NO_WARNINGS)
         ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE)
     ENDIF(MSVC)
-ENDIF(WIN32)
+ENDIF(WIN32 AND NOT ANDROID)
 
 ########################################################################################################
 ##### these were settings located in SetupCommon.cmake used in Luigi builds.... find out what are useful
@@ -366,7 +368,8 @@ ADD_SUBDIRECTORY(src)
 
 # Set defaults for Universal Binaries. We want 32-bit Intel/PPC on 10.4
 # and 32/64-bit Intel/PPC on >= 10.5. Anything <= 10.3 doesn't support.
-IF(APPLE AND NOT ANDROID)
+IF(NOT ANDROID)
+IF(APPLE)
 
         #Here we check if the user specified IPhone SDK
     IF(OSG_BUILD_PLATFORM_IPHONE OR OSG_BUILD_PLATFORM_IPHONE_SIMULATOR)
@@ -428,7 +431,8 @@ IF(APPLE AND NOT ANDROID)
 
     ENDIF()
 
-ENDIF(APPLE AND NOT ANDROID)
+ENDIF(APPLE)
+ENDIF(NOT ANDROID)
 
 
 # This needs to be run very last so other parts of the scripts can take
